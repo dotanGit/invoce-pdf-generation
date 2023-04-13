@@ -52,6 +52,29 @@ for path in filepaths:
         pdf.cell(w=30, h=8, txt=str(row['total_price']), border=1, ln=1, align='C')
 
 
+    # Add the sum total in to the table
+    sum_total = str(df['total_price'].sum())
+    pdf.set_font(family="Arial", size=12)
+    pdf.set_text_color(80, 80, 80)
+    pdf.cell(w=30, h=8, txt='', border=1)
+    pdf.cell(w=70, h=8, txt='', border=1)
+    pdf.cell(w=35, h=8, txt='', border=1)
+    pdf.cell(w=30, h=8, txt='', border=1)
+    pdf.set_font(family="Arial", size=12, style='B')
+    pdf.cell(w=30, h=8, txt=sum_total, border=1, ln=1, align='C')
+
+
+    # Add total sum sentence
+    pdf.set_font(family='Arial', size=16, style='B')
+    pdf.set_text_color(40, 40, 40)
+    pdf.cell(w=0, h=30, txt=f'The total price is : {sum_total}', ln=1)
+
+    # Add company name and logo
+    pdf.set_font(family='Arial', size=16, style='B')
+    pdf.cell(w=32, h=12, txt=f'PythonHow')
+    pdf.image('pythonhow.png', w=15)
+
+
     pdf.output(f'PDFs/{filename}.pdf')
 
 
