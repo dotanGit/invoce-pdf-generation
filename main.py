@@ -1,38 +1,34 @@
 import pandas as pd
-import glob   # we use this library when we hava multiple file, and we save those path inside a list
-from fpdf import FPDF
-from pathlib import Path
-from datetime import datetime
+import glob   # library for working with file paths
+from fpdf import FPDF   # library for creating PDFs
+from pathlib import Path   # library for working with file paths
+from datetime import datetime   # library for working with dates and times
 
-
-
-filepaths = glob.glob('invoices/*.xlsx')   # *.xlsx mean that we import every file in the folder that is xlsx type
-print(filepaths)
+filepaths = glob.glob('invoices/*.xlsx')   # get all Excel files in the "invoices" folder
 
 for path in filepaths:
-
-    pdf = FPDF(orientation='P', unit='mm', format='A4')
+    pdf = FPDF(orientation='P', unit='mm', format='A4')   # create new PDF with specified orientation, unit, and format
     pdf.add_page()
 
-    filename = Path(path).stem
-    invoice_nr = filename.split('-')[0]
-    format_date = datetime.now().strftime('%d-%m-%y')
+    filename = Path(path).stem   # get the name of the file without the file extension
+    invoice_nr = filename.split('-')[0]   # extract the invoice number from the file name
+    format_date = datetime.now().strftime('%d-%m-%y')   # get the current date in the specified format
 
-    # The name of the file
+    # Add the invoice number to the PDF
     pdf.set_font(family="Arial", size=16, style="B")
     pdf.cell(w=50, h=8, txt=f"Invoice number.{invoice_nr}", ln=1)
 
-    # The date the file was created
+    # Add the date to the PDF
     pdf.set_font(family="Arial", size=16, style="B")
     pdf.cell(w=50, h=12, txt=f"Date: {format_date}", ln=20)
     pdf.cell(w=0, h=10, ln=1)
 
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(path, sheet_name="Sheet 1")
 
-    df = pd.read_excel(path, sheet_name="Sheet 1")  # when we use multiple files we need to define the key sheet file
-
-    # Add a header
+    # Add a header row to the table
     columns_a = df.columns
-    columns_a = [item.replace("_", " ").title() for item in columns_a]  # this is exactly like for loop just in one line
+    columns_a = [item.replace("_", " ").title() for item in columns_a]  # capitalize the column names and replace underscores with spaces
     pdf.set_font(family="Arial", size=10, style='B')
     pdf.set_text_color(40, 40, 40)
     pdf.cell(w=30, h=8, txt=str(columns_a[0]), border=1, align='C')
@@ -51,30 +47,7 @@ for path in filepaths:
         pdf.cell(w=30, h=8, txt=str(row['price_per_unit']), border=1, align='C')
         pdf.cell(w=30, h=8, txt=str(row['total_price']), border=1, ln=1, align='C')
 
-
-    # Add the sum total in to the table
+    # Add the sum total row to the table
     sum_total = str(df['total_price'].sum())
-    pdf.set_font(family="Arial", size=12)
-    pdf.set_text_color(80, 80, 80)
-    pdf.cell(w=30, h=8, txt='', border=1)
-    pdf.cell(w=70, h=8, txt='', border=1)
-    pdf.cell(w=35, h=8, txt='', border=1)
-    pdf.cell(w=30, h=8, txt='', border=1)
-    pdf.set_font(family="Arial", size=12, style='B')
-    pdf.cell(w=30, h=8, txt=sum_total, border=1, ln=1, align='C')
 
-
-    # Add total sum sentence
-    pdf.set_font(family='Arial', size=16, style='B')
-    pdf.set_text_color(40, 40, 40)
-    pdf.cell(w=0, h=30, txt=f'The total price is : {sum_total}', ln=1)
-
-    # Add company name and logo
-    pdf.set_font(family='Arial', size=16, style='B')
-    pdf.cell(w=32, h=12, txt=f'PythonHow')
-    pdf.image('pythonhow.png', w=15)
-
-
-    pdf.output(f'PDFs/{filename}.pdf')
-
-
+print("PDF were created successfully")
